@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, FlatList, ActivityIndicator } from 'react-native';
 
 import firebase from './components/firebaseConfig';
+
+import List from './components/List';
 
 export default function App() {
 
   const [name,setName] = useState('')
   const [cargo,setCargo] = useState('')
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+
 
   async function cadastrar(){
     if(nome !== '' & cargo !== ''){
-      const usuarios = await firebase.database().ref('Usuários')
+      let usuarios = await firebase.database().ref('users')
       const chave = usuarios.push().key
 
       usuarios.child(chave).set({
@@ -20,6 +25,8 @@ export default function App() {
       })
 
       alert('Cadastrado com sucesso!')
+      setName('')
+      setCargo('')
     }
   }
 
@@ -44,6 +51,24 @@ export default function App() {
   }, [])
   */
 
+ useEffect(() => {
+  async function data(){
+    await firebase.database().ref('users').on('value', (snapshot) => {
+      setUsers([])
+      snapshot.forEach(childItem => {
+        const dataObj = {
+          key: childItem.key,
+          nome: childItem.val().nome,
+          cargo: childItem.val().cargo
+        }
+        setUsers(oldArray => [...oldArray, dataObj].reverse())  
+      })
+      setLoading(false)
+    })
+  }
+  data()
+ }, [])
+
   return (
     <View style={styles.container}>
       <Text style={{fontSize: 20}}>Nome</Text>
@@ -61,6 +86,22 @@ export default function App() {
         title='Novo Funcionario'
         onPress={cadastrar}
       />
+
+      {
+        loading ? (
+          <ActivityIndicator
+            color='#121212'
+            size={40}
+          />
+        ) : (
+          <FlatList
+          keyExtractor={item => item.key}
+         data={users}
+          renderItem={ ({item}) =>(<List data={item}/>) }
+          />
+        )
+      }
+
       <StatusBar style="auto" />
     </View>
   );
@@ -71,7 +112,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 35,
   },
   input: {
     padding: 10,
