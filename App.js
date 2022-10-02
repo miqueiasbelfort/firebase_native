@@ -14,14 +14,14 @@ export default function App() {
   const [loading, setLoading] = useState(true)
 
 
-  async function cadastrar(){
+  const cadastrar = async () => {
     if(nome !== '' & cargo !== ''){
-      let usuarios = await firebase.database().ref('users')
+      let usuarios = await firebase.database().ref('usuarios')
       const chave = usuarios.push().key
 
       usuarios.child(chave).set({
         nome: name,
-        cargo
+        cargo: cargo
       })
 
       alert('Cadastrado com sucesso!')
@@ -52,7 +52,7 @@ export default function App() {
   */
 
  useEffect(() => {
-  async function data(){
+  const data = async () => {
     await firebase.database().ref('users').on('value', (snapshot) => {
       setUsers([])
       snapshot.forEach(childItem => {
@@ -96,7 +96,7 @@ export default function App() {
         ) : (
           <FlatList
           keyExtractor={item => item.key}
-         data={users}
+          data={users}
           renderItem={ ({item}) =>(<List data={item}/>) }
           />
         )
