@@ -8,14 +8,12 @@ import List from './components/List';
 
 export default function App() {
 
-  const [name,setName] = useState('')
-  const [cargo,setCargo] = useState('')
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [email,setEmail] = useState('')
+  const [password,setPassword] = useState('')
 
 
   const cadastrar = async () => {
-    if(nome !== '' & cargo !== ''){
+    /*if(nome !== '' & cargo !== ''){
       let usuarios = await firebase.database().ref('usuarios')
       const chave = usuarios.push().key
 
@@ -27,7 +25,26 @@ export default function App() {
       alert('Cadastrado com sucesso!')
       setName('')
       setCargo('')
-    }
+    }8?
+    */
+
+   await firebase.auth().createUserWithEmailAndPassword(email,password)
+     .then((value) => {
+      alert('Usuário criado: ' + value.user.email)
+      setEmail('')
+      setPassword('')
+     }).catch((error) => {
+      if(error.code === 'auth/week-password'){
+        alert('A sua senha deve conter no mínino seis caracters')
+        return
+      } else if(error.code === 'auth/invalid-email'){
+        alert('E-mal invalido')
+        return
+      } else {
+        alert('Opps! Algo deu errado!')
+        return
+      }
+     })
   }
 
   /*
@@ -49,7 +66,6 @@ export default function App() {
     getData()
 
   }, [])
-  */
 
  useEffect(() => {
   const data = async () => {
@@ -68,26 +84,29 @@ export default function App() {
   }
   data()
  }, [])
+ */
 
   return (
     <View style={styles.container}>
-      <Text style={{fontSize: 20}}>Nome</Text>
+      <Text style={{fontSize: 20}}>E-mail</Text>
       <TextInput
         style={styles.input}
-        onChangeText={text => setName(text)}
+        onChangeText={text => setEmail(text)}
+        value={email}
       />
-      <Text style={{fontSize: 20}}>Cargo</Text>
+      <Text style={{fontSize: 20}}>Senha</Text>
       <TextInput
         style={styles.input}
-        onChangeText={text => setCargo(text)}
+        onChangeText={text => setPassword(text)}
+        value={password}
       />
       
       <Button 
-        title='Novo Funcionario'
+        title='Cadastrar'
         onPress={cadastrar}
       />
 
-      {
+      {/*
         loading ? (
           <ActivityIndicator
             color='#121212'
@@ -100,7 +119,7 @@ export default function App() {
           renderItem={ ({item}) =>(<List data={item}/>) }
           />
         )
-      }
+        */}
 
       <StatusBar style="auto" />
     </View>
@@ -120,8 +139,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#121212',
     height: 45,
-    width: 200,
+    width: 300,
     fontSize: 10,
     borderRadius: 5,
   }
-});
+})
