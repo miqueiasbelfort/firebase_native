@@ -10,9 +10,10 @@ export default function App() {
 
   const [email,setEmail] = useState('')
   const [password,setPassword] = useState('')
+  const [user, setUser] = useState('')
 
 
-  const cadastrar = async () => {
+  const login = async () => {
     /*if(nome !== '' & cargo !== ''){
       let usuarios = await firebase.database().ref('usuarios')
       const chave = usuarios.push().key
@@ -28,23 +29,22 @@ export default function App() {
     }8?
     */
 
-   await firebase.auth().createUserWithEmailAndPassword(email,password)
+   await firebase.auth().signInWithEmailAndPassword(email,password)
      .then((value) => {
-      alert('Usuário criado: ' + value.user.email)
+      alert('Bem-Vindo: ' + value.user.email)
       setEmail('')
       setPassword('')
+      setUser(value.user.email)
      }).catch((error) => {
-      if(error.code === 'auth/week-password'){
-        alert('A sua senha deve conter no mínino seis caracters')
-        return
-      } else if(error.code === 'auth/invalid-email'){
-        alert('E-mal invalido')
-        return
-      } else {
-        alert('Opps! Algo deu errado!')
-        return
-      }
+      alert('Opps! Algo deu errado!')
+      return
      })
+  }
+
+  async function logout(){
+    await firebase.auth().signOut()
+    alert('Usuário saiu!')
+    setUser('')
   }
 
   /*
@@ -102,9 +102,22 @@ export default function App() {
       />
       
       <Button 
-        title='Cadastrar'
-        onPress={cadastrar}
+        title='Login'
+        onPress={login}
       />
+
+      <Text
+        style={{fontSize: 20, marginTop: 20}}
+      >{user}</Text>
+
+      {
+        user && (
+          <Button
+            title='Sair'
+            onPress={logout}
+          />
+        )
+      }
 
       {/*
         loading ? (
